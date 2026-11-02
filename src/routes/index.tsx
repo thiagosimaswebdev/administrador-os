@@ -27,8 +27,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const vazio = (): OSData => ({
-  numero: gerarNumeroOS(), emissao: new Date(), cliente: "", telefone: "", so: "", marca: "", modelo: "",
+const vazio = (numero = ""): OSData => ({
+  numero, emissao: new Date(), cliente: "", telefone: "", so: "", marca: "", modelo: "",
   imei: "", senha: "", servico: "", descricao: "", garantiaCustom: "", valor: "", checklist: [], acessorios: [], observacoes: "",
 });
 
@@ -66,14 +66,17 @@ function Chips({ options, value, onChange }: { options: string[]; value: string[
 const selectCls = "h-11 w-full rounded-md border border-input bg-background px-3 text-base";
 
 function Index() {
-  const [os, setOs] = useState<OSData>(vazio);
+  const [os, setOs] = useState<OSData>(() => vazio());
   const [logo, setLogo] = useState<string | null>(null);
   const [pdf, setPdf] = useState<{ blob: Blob; url: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const sig = useRef<SignaturePadHandle>(null);
   const set = <K extends keyof OSData>(k: K, v: OSData[K]) => setOs((p) => ({ ...p, [k]: v }));
 
-  useEffect(() => { setLogo(localStorage.getItem("os-logo")); }, []);
+  useEffect(() => {
+    setLogo(localStorage.getItem("os-logo"));
+    setOs((p) => ({ ...p, numero: p.numero || gerarNumeroOS() }));
+  }, []);
 
   const onLogo = (f?: File) => {
     if (!f) return;
@@ -117,7 +120,7 @@ function Index() {
   };
   const nova = () => {
     if (pdf) URL.revokeObjectURL(pdf.url);
-    setPdf(null); setOs(vazio()); sig.current?.clear(); window.scrollTo({ top: 0 });
+    setPdf(null); setOs(vazio(gerarNumeroOS())); sig.current?.clear(); window.scrollTo({ top: 0 });
   };
 
   const dias = garantiaDias(os.servico, Number(os.garantiaCustom));
