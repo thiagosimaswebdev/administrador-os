@@ -19,4 +19,11 @@ describe("regras da O.S.", () => {
   it("valor em reais", () => {
     expect(formatBRLFromDigits("35000").replace(/\s/g, " ")).toBe("R$ 350,00");
   });
+  it("iPhone tem marca fixa e modelos na lista; Android tem as marcas usuais", () => {
+    expect(MARCA_IOS).toBe("Apple (iPhone)");
+    expect(MODELOS_IPHONE).toContain("iPhone 17 Pro Max");
+    expect(MARCAS_ANDROID).toContain("Samsung");
+    expect(MARCAS_ANDROID).toContain("Xiaomi");
+    expect(MARCAS_ANDROID).not.toContain(MARCA_IOS);
+  });
 });
