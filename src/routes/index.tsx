@@ -91,7 +91,7 @@ function Index() {
 
   const gerar = async () => {
     const err = validar(os);
-    if (err) return toast.error(err);
+    if (err) { toast.error(err); return; }
     setBusy(true);
     try {
       const { gerarPDF } = await import("@/lib/pdf");
