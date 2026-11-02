@@ -228,7 +228,14 @@ function Index() {
         <Field label="Valor" req><Input className="h-11 text-lg font-bold" inputMode="numeric" placeholder="R$ 0,00" value={os.valor} onChange={(e) => set("valor", formatBRLFromDigits(e.target.value))} /></Field>
       </Card>
 
-      <Card title="Checklist de entrada"><Chips options={CHECKLIST} value={os.checklist} onChange={(v) => set("checklist", v)} /></Card>
+      <Card title="Checklist de entrada">
+        <Chips options={CHECKLIST} value={os.checklist} onChange={(v) => set("checklist", v)} />
+        {os.checklist.includes("Outro") && (
+          <Field label="Descreva o item “Outro”">
+            <Textarea rows={2} maxLength={200} placeholder="Ex.: Moldura trincada na lateral" value={os.checklistOutro} onChange={(e) => set("checklistOutro", e.target.value)} />
+          </Field>
+        )}
+      </Card>
       <Card title="Acessórios recebidos"><Chips options={ACESSORIOS} value={os.acessorios} onChange={(v) => set("acessorios", v)} /></Card>
 
       <Card title="Observações">

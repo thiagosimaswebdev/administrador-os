@@ -75,7 +75,7 @@ export async function gerarPDF(o: OSData, logo: string | null, assinatura: strin
   ], 3);
 
   section("Checklist de Entrada");
-  list(o.checklist);
+  list(o.checklist.includes("Outro") && o.checklistOutro.trim() ? o.checklist.map((c) => (c === "Outro" ? `Outro: ${o.checklistOutro.trim()}` : c)) : o.checklist);
   section("Acessórios Recebidos");
   list(o.acessorios);
 
