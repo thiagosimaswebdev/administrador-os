@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
 
 const vazio = (numero = ""): OSData => ({
   numero, emissao: new Date(), cliente: "", telefone: "", so: "", marca: "", modelo: "",
-  imei: "", senha: "", servico: "", descricao: "", garantiaCustom: "", valor: "", checklist: [], acessorios: [], observacoes: "",
+  imei: "", senha: "", servico: "", descricao: "", garantiaCustom: "", valor: "", checklist: [], checklistOutro: "", acessorios: [], observacoes: "",
 });
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
