@@ -73,6 +73,11 @@ function Index() {
   const [busy, setBusy] = useState(false);
   const sig = useRef<SignaturePadHandle>(null);
   const set = <K extends keyof OSData>(k: K, v: OSData[K]) => setOs((p) => ({ ...p, [k]: v }));
+  const [outraMarca, setOutraMarca] = useState(false);
+  const trocarSO = (s: OSData["so"]) => {
+    setOs((p) => ({ ...p, so: s, marca: s === "iPhone (iOS)" ? MARCA_IOS : "", modelo: "" }));
+    setOutraMarca(false);
+  };
 
   useEffect(() => {
     setLogo(localStorage.getItem("os-logo"));
@@ -171,14 +176,35 @@ function Index() {
         <Field label="Sistema operacional" req>
           <div className="grid grid-cols-2 gap-2">
             {(["Android", "iPhone (iOS)"] as const).map((s) => (
-              <Button key={s} type="button" variant={os.so === s ? "default" : "outline"} className="h-11" onClick={() => set("so", s)}>{s}</Button>
+              <Button key={s} type="button" variant={os.so === s ? "default" : "outline"} className="h-11" onClick={() => trocarSO(s)}>{s}</Button>
             ))}
           </div>
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Marca" req><Input className="h-11" value={os.marca} onChange={(e) => set("marca", e.target.value)} /></Field>
-          <Field label="Modelo" req><Input className="h-11" value={os.modelo} onChange={(e) => set("modelo", e.target.value)} /></Field>
-        </div>
+        {os.so === "Android" && (
+          <>
+            <Field label="Marca" req>
+              <div className="grid grid-cols-3 gap-2">
+                {MARCAS_ANDROID.map((m) => (
+                  <Button key={m} type="button" variant={os.marca === m && !outraMarca ? "default" : "outline"} className="h-10 px-1 text-sm" onClick={() => { setOutraMarca(false); set("marca", m); }}>{m}</Button>
+                ))}
+                <Button type="button" variant={outraMarca ? "default" : "outline"} className="h-10 px-1 text-sm" onClick={() => { setOutraMarca(true); set("marca", ""); }}>Outra</Button>
+              </div>
+            </Field>
+            {outraMarca && <Field label="Qual marca?"><Input className="h-11" value={os.marca} onChange={(e) => set("marca", e.target.value)} /></Field>}
+            <Field label="Modelo" req><Input className="h-11" placeholder="Ex.: Moto G 5G" value={os.modelo} onChange={(e) => set("modelo", e.target.value)} /></Field>
+          </>
+        )}
+        {os.so === "iPhone (iOS)" && (
+          <>
+            <Field label="Marca" req><Input className="h-11 bg-muted" readOnly value={MARCA_IOS} /></Field>
+            <Field label="Modelo" req>
+              <select className={selectCls} value={os.modelo} onChange={(e) => set("modelo", e.target.value)}>
+                <option value="">Selecione…</option>
+                {MODELOS_IPHONE.map((m) => <option key={m}>{m}</option>)}
+              </select>
+            </Field>
+          </>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <Field label="IMEI"><Input className="h-11" inputMode="numeric" value={os.imei} onChange={(e) => set("imei", e.target.value.replace(/\D/g, "").slice(0, 15))} /></Field>
           <Field label="Senha"><Input className="h-11" value={os.senha} onChange={(e) => set("senha", e.target.value)} /></Field>
