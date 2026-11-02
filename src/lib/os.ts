@@ -68,6 +68,7 @@ export interface OSData {
   garantiaCustom: string;
   valor: string;
   checklist: string[];
+  checklistOutro: string;
   acessorios: string[];
   observacoes: string;
 }
