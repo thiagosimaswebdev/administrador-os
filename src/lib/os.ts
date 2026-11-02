@@ -7,6 +7,19 @@ export const CHECKLIST = [
 ];
 export const ACESSORIOS = ["Carregador", "Cabo USB", "Chip", "Cartão de Memória", "Película", "Capa", "Nenhum"];
 
+export const MARCA_IOS = "Apple (iPhone)";
+export const MARCAS_ANDROID = ["Samsung", "Motorola", "LG", "Xiaomi", "Realme", "Asus", "Nokia", "Positivo", "Multilaser"];
+export const MODELOS_IPHONE = [
+  "iPhone SE (2ª geração)", "iPhone SE (3ª geração)",
+  "iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max",
+  "iPhone 12", "iPhone 12 mini", "iPhone 12 Pro", "iPhone 12 Pro Max",
+  "iPhone 13", "iPhone 13 mini", "iPhone 13 Pro", "iPhone 13 Pro Max",
+  "iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max",
+  "iPhone 15", "iPhone 15 Plus", "iPhone 15 Pro", "iPhone 15 Pro Max",
+  "iPhone 16", "iPhone 16 Plus", "iPhone 16 Pro", "iPhone 16 Pro Max", "iPhone 16e",
+  "iPhone 17", "iPhone 17 Pro", "iPhone 17 Pro Max", "iPhone Air",
+];
+
 export const TERMO =
   "A garantia cobre exclusivamente o serviço executado e/ou a peça substituída, pelo prazo informado nesta Ordem de Serviço. A garantia não cobre danos decorrentes de quedas, impactos, pressão física, mau uso, violação do aparelho por terceiros, oxidação, contato com água ou qualquer outro líquido, utilização de acessórios inadequados, descargas elétricas ou quaisquer danos externos posteriores ao reparo. Equipamentos que apresentem sinais de violação, umidade ou avarias físicas terão a garantia automaticamente cancelada. A garantia é limitada ao reparo realizado e não cobre defeitos não relacionados ao serviço executado.";
 
