@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SignaturePad, type SignaturePadHandle } from "@/components/SignaturePad";
 import {
-  ACESSORIOS, CHECKLIST, SERVICOS, formatBRLFromDigits, formatPhone, garantiaDias, gerarNumeroOS, validar,
+  ACESSORIOS, CHECKLIST, MARCA_IOS, MARCAS_ANDROID, MODELOS_IPHONE, SERVICOS,
+  formatBRLFromDigits, formatPhone, garantiaDias, gerarNumeroOS, validar,
   type OSData, type Servico,
 } from "@/lib/os";
 
