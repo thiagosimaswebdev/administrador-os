@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { garantiaDias, gerarNumeroOS, formatBRLFromDigits } from "./os";
+import { garantiaDias, gerarNumeroOS, formatBRLFromDigits, MARCA_IOS, MARCAS_ANDROID, MODELOS_IPHONE } from "./os";
 
 describe("regras da O.S.", () => {
   it("tela e bateria têm 90 dias", () => {
