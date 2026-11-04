@@ -1,4 +1,4 @@
-export type Servico = "Troca de Tela" | "Troca de Bateria" | "Porta de Carregamento" | "Outros";
+export type Servico = string;
 export const SERVICOS: Servico[] = ["Troca de Tela", "Troca de Bateria", "Porta de Carregamento", "Outros"];
 
 export const CHECKLIST = [
@@ -6,6 +6,34 @@ export const CHECKLIST = [
   "Oxidação aparente", "Sem avarias aparentes", "Sem teste funcional", "Aparelho não liga", "Outro",
 ];
 export const ACESSORIOS = ["Carregador", "Cabo USB", "Chip", "Cartão de Memória", "Película", "Capa", "Nenhum"];
+export const STATUS = ["Recebido", "Em análise", "Aguardando peça", "Em reparo", "Finalizado", "Entregue"];
+export const EMPRESA_FIELDS = ["nome", "fantasia", "telefone", "whatsapp", "instagram", "email", "endereco", "cidade", "estado"] as const;
+export type Empresa = Partial<Record<typeof EMPRESA_FIELDS[number], string>> & { logo?: string | null };
+
+export function buscarOrdens<T extends { numero: string; cliente: string; telefone: string }>(orders: T[], busca: string): T[] {
+  const q = busca.trim().toLocaleLowerCase("pt-BR");
+  const digits = q.replace(/\D/g, "");
+  return orders.filter(o => !q || o.numero.toLowerCase().includes(q) || o.cliente.toLocaleLowerCase("pt-BR").includes(q) || o.telefone.includes(q) || (digits.length > 0 && /^[\d\s()+-]+$/.test(q) && o.telefone.replace(/\D/g, "").includes(digits)));
+}
+
+export function resumoOrdens(orders: { status: string }[]) {
+  return { total: orders.length, andamento: orders.filter(o => STATUS.slice(0, 4).includes(o.status)).length, finalizadas: orders.filter(o => o.status === "Finalizado").length, entregues: orders.filter(o => o.status === "Entregue").length };
+}
+
+export function numeroUnico(existentes: string[], date = new Date(), rand = Math.random): string {
+  const inicial = gerarNumeroOS(date, rand);
+  const prefix = inicial.slice(0, -4);
+  const start = Number(inicial.slice(-4));
+  for (let i = 0; i < 10000; i++) {
+    const n = `${prefix}${String((start + i) % 10000).padStart(4, "0")}`;
+    if (!existentes.includes(n)) return n;
+  }
+  throw new Error("Limite de numeração do dia atingido.");
+}
+
+export function mensagemWhatsApp(numero: string) {
+  return `Olá, segue sua Ordem de Serviço nº ${numero}. Obrigado pela preferência.`;
+}
 
 export const MARCA_IOS = "Apple (iPhone)";
 export const MARCAS_ANDROID = ["Samsung", "Motorola", "LG", "Xiaomi", "Realme", "Asus", "Nokia", "Positivo", "Multilaser"];
@@ -54,6 +82,15 @@ export function formatPhone(v: string): string {
 }
 
 export interface OSData {
+  status?: string;
+  serviceId?: string;
+  garantiaSnapshot?: number;
+  serviceObservation?: string;
+  empresa?: Empresa;
+  assinatura?: string | null;
+  fotos?: { label: string; data: string }[];
+  trackingUrl?: string;
+  updatedAt?: string;
   numero: string;
   emissao: Date;
   cliente: string;
@@ -80,9 +117,11 @@ export function validar(o: OSData): string | null {
   if (!o.marca.trim()) return "Informe a marca do aparelho.";
   if (!o.modelo.trim()) return "Informe o modelo do aparelho.";
   if (!o.servico) return "Selecione o serviço executado.";
+  if (o.status && !STATUS.includes(o.status)) return "Selecione um status válido.";
+  if (o.garantiaSnapshot !== undefined && (!Number.isInteger(o.garantiaSnapshot) || o.garantiaSnapshot < 0)) return "Informe uma garantia válida em dias.";
   if (o.servico === "Outros") {
     if (!o.descricao.trim()) return "Descreva o serviço executado.";
-    if (!garantiaDias("Outros", Number(o.garantiaCustom))) return "Informe a garantia em dias.";
+    if (o.garantiaSnapshot === undefined && !garantiaDias("Outros", Number(o.garantiaCustom))) return "Informe a garantia em dias.";
   }
   if (!o.valor) return "Informe o valor do serviço.";
   if (o.observacoes.length > 500) return "As observações devem ter no máximo 500 caracteres.";
