@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CatalogEditor } from "@/components/CatalogEditor";
+import { ServicesPage } from "@/pages/ServicesPage";
 
 export const Route = createFileRoute("/servicos")({
-  component: () => <CatalogEditor kind="services" />,
+  component: ServicesPage,
 });

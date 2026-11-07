@@ -19,7 +19,7 @@ const fields = [
   ["cidade", "Cidade"],
   ["estado", "Estado"],
 ];
-export function CompanySettings() {
+export function CompanySettingsPage() {
   const { settings, saveSettings } = useWorkshop();
   const [company, setCompany] = useState(settings.empresa);
   const [busy, setBusy] = useState(false);

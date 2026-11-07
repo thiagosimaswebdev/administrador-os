@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CatalogEditor } from "@/components/CatalogEditor";
+import { ChecklistPage } from "@/pages/ChecklistPage";
 
 export const Route = createFileRoute("/checklist")({
-  component: () => <CatalogEditor kind="checklist" />,
+  component: ChecklistPage,
 });

@@ -7,7 +7,7 @@
   aria-labelledby="title desc"
 >
   <title id="title">Resumo dos testes automatizados</title>
-  <desc id="desc">Duas suítes Vitest, sete testes aprovados e nenhum teste falhou.</desc>
+  <desc id="desc">Quatro arquivos Vitest, quinze testes aprovados e nenhum teste falhou.</desc>
   <defs>
     <style>
       .bg {
@@ -58,24 +58,25 @@
   <rect class="bg" width="1100" height="520" rx="18" />
   <text x="40" y="52" class="head">TESTES AUTOMATIZADOS · VITEST</text>
   <rect class="card" x="40" y="85" width="320" height="140" rx="14" />
-  <text x="65" y="145" class="num">2</text>
+  <text x="65" y="145" class="num">4</text>
   <text x="130" y="137" class="title">arquivos de teste</text>
-  <text x="130" y="168" class="body">regras + roteamento</text>
+  <text x="130" y="168" class="body">domínio · PDF · fotos · rotas</text>
   <rect class="card" x="390" y="85" width="320" height="140" rx="14" />
-  <text x="415" y="145" class="num">7</text>
+  <text x="415" y="145" class="num">15</text>
   <text x="475" y="137" class="title">testes aprovados</text>
-  <text x="475" y="168" class="body">6 domínio + 1 rota</text>
+  <text x="475" y="168" class="body">7 domínio + 7 PDF/fotos + 1 rota</text>
   <rect class="card" x="740" y="85" width="320" height="140" rx="14" />
   <text x="765" y="145" class="num">0</text>
   <text x="815" y="137" class="title">falhas</text>
   <text x="815" y="168" class="body">na execução registrada</text>
   <rect class="card" x="40" y="255" width="490" height="215" rx="14" />
-  <text x="68" y="295" class="title">src/lib/os.test.js</text>
+  <text x="68" y="295" class="title">Regras e geração de PDF</text>
   <text x="68" y="333" class="body">✓ Garantia: tela/bateria e porta</text>
-  <text x="68" y="365" class="body">✓ Número OS-AAAAMMDD-XXXX</text>
-  <text x="68" y="397" class="body">✓ Formatação BRL e marcas/modelos</text>
+  <text x="68" y="365" class="body">✓ Número, valor e marcas/modelos</text>
+  <text x="68" y="397" class="body">✓ Quebras de página e grade de fotos</text>
+  <text x="68" y="429" class="body">✓ Limite e substituição de fotos</text>
   <rect class="card" x="570" y="255" width="490" height="215" rx="14" />
-  <text x="598" y="295" class="title">src/test/app-routing.test.jsx</text>
+  <text x="598" y="295" class="title">Fluxos e comportamento</text>
   <text x="598" y="333" class="body">✓ Início e páginas de cadastro</text>
   <text x="598" y="365" class="body">✓ Nova O.S. e rota de edição dinâmica</text>
   <text x="598" y="397" class="body">✓ Confere que as rotas não caem no 404</text>

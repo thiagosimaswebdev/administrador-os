@@ -5,7 +5,7 @@ import { useWorkshop } from "@/contexts/WorkshopContext";
 import { resumoOrdens } from "@/lib/os";
 import { OrderList } from "@/components/OrderList";
 
-export function Dashboard() {
+export function DashboardPage() {
   const { orders, settings } = useWorkshop();
   const stats = resumoOrdens(orders);
   return (

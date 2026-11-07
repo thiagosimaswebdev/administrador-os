@@ -1,4 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CompanySettings } from "@/components/CompanySettings";
+import { CompanySettingsPage } from "@/pages/CompanySettingsPage";
 
-export const Route = createFileRoute("/configuracoes")({ component: CompanySettings });
+export const Route = createFileRoute("/configuracoes")({ component: CompanySettingsPage });

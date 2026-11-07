@@ -5,7 +5,7 @@ import { STATUS, buscarOrdens } from "@/lib/os";
 import { useWorkshop } from "@/contexts/WorkshopContext";
 import { OrderList } from "@/components/OrderList";
 
-export function History() {
+export function HistoryPage() {
   const { orders } = useWorkshop();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");

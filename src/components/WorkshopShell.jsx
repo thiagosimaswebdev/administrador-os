@@ -58,14 +58,14 @@ export function WorkshopShell({ children }) {
       </main>
     );
   const palette = settings.empresa.logoPalette;
-  const firstColor = colorWash(palette?.[0], 0.2);
-  const secondColor = colorWash(palette?.[1], 0.15);
-  const headerStyle =
-    settings.empresa.logo && firstColor && secondColor
-      ? {
-          backgroundImage: `linear-gradient(112deg, ${firstColor} 0%, ${secondColor} 56%, ${firstColor} 100%)`,
-        }
-      : undefined;
+  const firstColor = colorWash(palette?.[0], 0.52) || colorWash("#0f6b5c", 0.52);
+  const secondColor = colorWash(palette?.[1], 0.58) || colorWash("#2ab99a", 0.58);
+  const accentColor = colorWash(palette?.[1], 0.34) || colorWash("#2ab99a", 0.34);
+  const headerStyle = settings.empresa.logo
+    ? {
+        backgroundImage: `radial-gradient(ellipse at 82% 0%, ${accentColor} 0%, transparent 58%), linear-gradient(110deg, ${firstColor} 0%, ${firstColor} 18%, ${secondColor} 78%, ${secondColor} 100%)`,
+      }
+    : undefined;
   return (
     <div className="min-h-screen">
       <header className="border-b bg-card" style={headerStyle}>

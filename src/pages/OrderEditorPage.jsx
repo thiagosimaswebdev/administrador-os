@@ -1,23 +1,21 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useWorkshop } from "@/contexts/WorkshopContext";
 import { STATUS, numeroUnico, mensagemWhatsApp } from "@/lib/os";
-import { imageFromFile } from "@/services/images";
-import { Camera, ImagePlus, Trash2, Save, ArrowLeft, Send, Plus } from "lucide-react";
+import { Save, ArrowLeft, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SignaturePad } from "@/components/SignaturePad";
+import { OrderPhotosSection } from "@/components/orders/OrderPhotosSection";
 import {
   ACESSORIOS,
   CHECKLIST,
   MARCA_IOS,
   MARCAS_ANDROID,
-  MAX_ORDER_PHOTOS,
   MODELOS_IPHONE,
   SERVICOS,
   formatBRLFromDigits,
@@ -92,9 +90,8 @@ function Chips({ options, value, onChange }) {
   );
 }
 const selectCls = "h-11 w-full rounded-md border border-input bg-background px-3 text-base";
-const FIXED_PHOTO_LABELS = new Set(["Frente", "Traseira", "Adicional"]);
 
-export function OrderEditor({ numero }) {
+export function OrderEditorPage({ numero }) {
   const { settings, orders, saveOrder } = useWorkshop();
   const navigate = useNavigate();
   const existing = orders.find((o) => o.numero === numero);
@@ -109,35 +106,9 @@ export function OrderEditor({ numero }) {
   const [pdf, setPdf] = useState(null);
   const [busy, setBusy] = useState(false);
   const sig = useRef(null);
-  const additionalCameraInput = useRef(null);
-  const additionalGalleryInput = useRef(null);
   const set = (k, v) => setOs((p) => ({ ...p, [k]: v }));
+  const updatePhotos = (photos) => setOs((p) => ({ ...p, fotos: photos }));
   const [outraMarca, setOutraMarca] = useState(false);
-  const addAdditionalPhoto = async (e) => {
-    const file = e.currentTarget.files?.[0];
-    e.currentTarget.value = "";
-    if (!file) return;
-
-    const photos = os.fotos || [];
-    if (photos.length >= MAX_ORDER_PHOTOS) {
-      toast.error(`O limite é de ${MAX_ORDER_PHOTOS} fotos por O.S.`);
-      return;
-    }
-
-    const usedLabels = new Set(photos.map((photo) => photo.label));
-    let index = 1;
-    while (usedLabels.has(`Extra ${index}`)) index += 1;
-
-    try {
-      const data = await imageFromFile(file);
-      setOs((p) => ({
-        ...p,
-        fotos: [...(p.fotos || []), { label: `Extra ${index}`, data }],
-      }));
-    } catch {
-      toast.error("Não foi possível abrir a foto.");
-    }
-  };
   const trocarSO = (s) => {
     setOs((p) => ({ ...p, so: s, marca: s === "iPhone (iOS)" ? MARCA_IOS : "", modelo: "" }));
     setOutraMarca(false);
@@ -531,139 +502,7 @@ export function OrderEditor({ numero }) {
         <p className="text-right text-xs text-muted-foreground">{os.observacoes.length}/500</p>
       </Card>
 
-      <Card title="Fotos do aparelho (opcional)">
-        <div className="grid grid-cols-3 gap-3">
-          {["Frente", "Traseira", "Adicional"].map((label) => {
-            const photo = os.fotos?.find((f) => f.label === label);
-            return (
-              <div key={label}>
-                <label className="flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted text-muted-foreground">
-                  {photo ? (
-                    <img src={photo.data} alt={label} className="size-full object-cover" />
-                  ) : (
-                    <Camera className="size-6" />
-                  )}
-                  <input
-                    type="file"
-                    aria-label={`Foto ${label}`}
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      e.target.value = "";
-                      if (!file) return;
-                      const replacingPhoto = (os.fotos || []).some((item) => item.label === label);
-                      if (!replacingPhoto && (os.fotos || []).length >= MAX_ORDER_PHOTOS) {
-                        toast.error(`O limite é de ${MAX_ORDER_PHOTOS} fotos por O.S.`);
-                        return;
-                      }
-                      try {
-                        const data = await imageFromFile(file);
-                        setOs((p) => ({
-                          ...p,
-                          fotos: [
-                            ...(p.fotos || []).filter((f) => f.label !== label),
-                            { label, data },
-                          ],
-                        }));
-                      } catch {
-                        toast.error("Não foi possível abrir a foto.");
-                      }
-                    }}
-                  />
-                </label>
-                <div className="mt-1 flex items-center justify-between">
-                  <span className="text-xs">{label}</span>
-                  {photo && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Remover foto ${label}`}
-                      onClick={() =>
-                        set(
-                          "fotos",
-                          os.fotos.filter((f) => f.label !== label),
-                        )
-                      }
-                    >
-                      <Trash2 className="size-3" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          {(os.fotos || [])
-            .filter((photo) => !FIXED_PHOTO_LABELS.has(photo.label))
-            .map((photo) => (
-              <div key={photo.label}>
-                <div className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border bg-muted">
-                  <img src={photo.data} alt={photo.label} className="size-full object-cover" />
-                </div>
-                <div className="mt-1 flex items-center justify-between">
-                  <span className="text-xs">{photo.label}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Remover foto ${photo.label}`}
-                    onClick={() =>
-                      set(
-                        "fotos",
-                        (os.fotos || []).filter((item) => item.label !== photo.label),
-                      )
-                    }
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            <input
-              ref={additionalCameraInput}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              aria-label="Tirar foto adicional"
-              onChange={addAdditionalPhoto}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={(os.fotos || []).length >= MAX_ORDER_PHOTOS}
-              onClick={() => additionalCameraInput.current?.click()}
-            >
-              <Camera className="size-4" />
-              Tirar foto
-            </Button>
-            <input
-              ref={additionalGalleryInput}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              aria-label="Escolher foto da galeria"
-              onChange={addAdditionalPhoto}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={(os.fotos || []).length >= MAX_ORDER_PHOTOS}
-              onClick={() => additionalGalleryInput.current?.click()}
-            >
-              <ImagePlus className="size-4" />
-              Escolher da galeria
-            </Button>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            {(os.fotos || []).length}/{MAX_ORDER_PHOTOS} fotos
-          </span>
-        </div>
-      </Card>
+      <OrderPhotosSection photos={os.fotos || []} onPhotosChange={updatePhotos} />
 
       <Card title="Assinatura do cliente (opcional)">
         <SignaturePad ref={sig} initialValue={savedSignature} />

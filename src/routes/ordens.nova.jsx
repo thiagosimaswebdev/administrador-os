@@ -1,4 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { OrderEditor } from "@/components/OrderEditor";
+import { OrderEditorPage } from "@/pages/OrderEditorPage";
 
-export const Route = createFileRoute("/ordens/nova")({ component: () => <OrderEditor /> });
+export const Route = createFileRoute("/ordens/nova")({ component: () => <OrderEditorPage /> });

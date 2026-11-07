@@ -202,34 +202,57 @@ export async function gerarPDF(order, logo, assinatura) {
 
   const photos = order.fotos || [];
   if (photos.length) {
+    const photoColumns = 3;
+    const photoRowHeight = 44;
+    const photoColumnGap = 4;
+    const photoColumnWidth = (contentWidth - photoColumnGap * (photoColumns - 1)) / photoColumns;
+    ensureSpace(photoRowHeight + 12);
     section("Fotos do aparelho");
-    for (const photo of photos) {
-      ensureSpace(43);
-      const { w, h } = await imgSize(photo.data);
-      const scale = Math.min(54 / w, 34 / h);
-      const format = photo.data.startsWith("data:image/png") ? "PNG" : "JPEG";
-      doc.addImage(photo.data, format, margin + 2, y, w * scale, h * scale);
-      doc
-        .setFont("helvetica", "normal")
-        .setFontSize(8)
-        .setTextColor(...GRAY)
-        .text(photo.label, margin + 60, y + 5);
-      y += 39;
+    for (let index = 0; index < photos.length; index += photoColumns) {
+      ensureSpace(photoRowHeight);
+      const row = photos.slice(index, index + photoColumns);
+      const sizes = await Promise.all(row.map((photo) => imgSize(photo.data)));
+      row.forEach((photo, column) => {
+        const { w, h } = sizes[column];
+        const scale = Math.min((photoColumnWidth - 2) / w, 36 / h);
+        const imageWidth = w * scale;
+        const x =
+          margin +
+          2 +
+          column * (photoColumnWidth + photoColumnGap) +
+          (photoColumnWidth - imageWidth) / 2;
+        const imageHeight = h * scale;
+        const format = photo.data.startsWith("data:image/png") ? "PNG" : "JPEG";
+        doc.addImage(photo.data, format, x, y, w * scale, imageHeight);
+        doc
+          .setFont("helvetica", "normal")
+          .setFontSize(8)
+          .setTextColor(...GRAY)
+          .text(
+            doc.splitTextToSize(photo.label || "Foto", photoColumnWidth)[0],
+            x + imageWidth / 2,
+            y + 39,
+            {
+              align: "center",
+            },
+          );
+      });
+      y += photoRowHeight;
     }
+    doc.addPage();
+    y = 16;
   }
 
-  section("Termo de garantia");
   const warrantyLines = doc.splitTextToSize(TERMO, contentWidth - 4);
-  for (let offset = 0; offset < warrantyLines.length; offset += 10) {
-    const pageLines = warrantyLines.slice(offset, offset + 10);
-    ensureSpace(pageLines.length * 3.7 + 4);
-    doc
-      .setFont("helvetica", "normal")
-      .setFontSize(7.8)
-      .setTextColor(...GRAY);
-    doc.text(pageLines, margin + 2, y + 1, { lineHeightFactor: 1.35 });
-    y += pageLines.length * 3.7 + 4;
-  }
+  const warrantyHeight = warrantyLines.length * 3.7 + 4;
+  ensureSpace(warrantyHeight + 12);
+  section("Termo de garantia");
+  doc
+    .setFont("helvetica", "normal")
+    .setFontSize(7.8)
+    .setTextColor(...GRAY);
+  doc.text(warrantyLines, margin + 2, y + 1, { lineHeightFactor: 1.35 });
+  y += warrantyHeight;
 
   ensureSpace(48);
   const signatureY = y + 24;
