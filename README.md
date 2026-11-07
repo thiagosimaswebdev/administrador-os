@@ -2,6 +2,10 @@
 
 Implement exactly the screenshot and nothing else
 
+## Manual de estudo
+
+Para conhecer a arquitetura, os componentes, os hooks, o fluxo de dados, o IndexedDB, o PDF, o PWA e os testes, consulte o [Manual de Estudo do Projeto](docs/manual-de-estudo.md). As capturas e diagramas estão em `docs/imagens/`.
+
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable

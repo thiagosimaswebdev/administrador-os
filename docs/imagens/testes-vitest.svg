@@ -1,0 +1,85 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1100"
+  height="520"
+  viewBox="0 0 1100 520"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Resumo dos testes automatizados</title>
+  <desc id="desc">Duas suítes Vitest, sete testes aprovados e nenhum teste falhou.</desc>
+  <defs>
+    <style>
+      .bg {
+        fill: #f4f8f7;
+      }
+      .card {
+        fill: #fff;
+        stroke: #d2e1de;
+        stroke-width: 2;
+      }
+      .head {
+        font:
+          700 24px Manrope,
+          Arial,
+          sans-serif;
+        fill: #153c36;
+      }
+      .title {
+        font:
+          700 18px Manrope,
+          Arial,
+          sans-serif;
+        fill: #153c36;
+      }
+      .body {
+        font:
+          15px Manrope,
+          Arial,
+          sans-serif;
+        fill: #536b67;
+      }
+      .num {
+        font:
+          800 48px Manrope,
+          Arial,
+          sans-serif;
+        fill: #087f6b;
+      }
+      .ok {
+        font:
+          700 16px Manrope,
+          Arial,
+          sans-serif;
+        fill: #087f6b;
+      }
+    </style>
+  </defs>
+  <rect class="bg" width="1100" height="520" rx="18" />
+  <text x="40" y="52" class="head">TESTES AUTOMATIZADOS · VITEST</text>
+  <rect class="card" x="40" y="85" width="320" height="140" rx="14" />
+  <text x="65" y="145" class="num">2</text>
+  <text x="130" y="137" class="title">arquivos de teste</text>
+  <text x="130" y="168" class="body">regras + roteamento</text>
+  <rect class="card" x="390" y="85" width="320" height="140" rx="14" />
+  <text x="415" y="145" class="num">7</text>
+  <text x="475" y="137" class="title">testes aprovados</text>
+  <text x="475" y="168" class="body">6 domínio + 1 rota</text>
+  <rect class="card" x="740" y="85" width="320" height="140" rx="14" />
+  <text x="765" y="145" class="num">0</text>
+  <text x="815" y="137" class="title">falhas</text>
+  <text x="815" y="168" class="body">na execução registrada</text>
+  <rect class="card" x="40" y="255" width="490" height="215" rx="14" />
+  <text x="68" y="295" class="title">src/lib/os.test.js</text>
+  <text x="68" y="333" class="body">✓ Garantia: tela/bateria e porta</text>
+  <text x="68" y="365" class="body">✓ Número OS-AAAAMMDD-XXXX</text>
+  <text x="68" y="397" class="body">✓ Formatação BRL e marcas/modelos</text>
+  <rect class="card" x="570" y="255" width="490" height="215" rx="14" />
+  <text x="598" y="295" class="title">src/test/app-routing.test.jsx</text>
+  <text x="598" y="333" class="body">✓ Início e páginas de cadastro</text>
+  <text x="598" y="365" class="body">✓ Nova O.S. e rota de edição dinâmica</text>
+  <text x="598" y="397" class="body">✓ Confere que as rotas não caem no 404</text>
+  <text x="40" y="500" class="ok">
+    Resumo visual dos resultados de `npm test`; não é captura do terminal.
+  </text>
+</svg>

@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useWorkshop } from "@/contexts/WorkshopContext";
 import { STATUS, numeroUnico, mensagemWhatsApp } from "@/lib/os";
 import { imageFromFile } from "@/services/images";
-import { Camera, Trash2, Save, ArrowLeft, Send } from "lucide-react";
+import { Camera, ImagePlus, Trash2, Save, ArrowLeft, Send, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -13,14 +13,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SignaturePad } from "@/components/SignaturePad";
 import {
-  ACESSORIOS, CHECKLIST, MARCA_IOS, MARCAS_ANDROID, MODELOS_IPHONE, SERVICOS,
-  formatBRLFromDigits, formatPhone, garantiaDias, gerarNumeroOS, validar,
+  ACESSORIOS,
+  CHECKLIST,
+  MARCA_IOS,
+  MARCAS_ANDROID,
+  MAX_ORDER_PHOTOS,
+  MODELOS_IPHONE,
+  SERVICOS,
+  formatBRLFromDigits,
+  formatPhone,
+  garantiaDias,
+  gerarNumeroOS,
+  validar,
 } from "@/lib/os";
 
 const vazio = (numero = "") => ({
-  status: "Recebido", trackingUrl: "", fotos: [], assinatura: null,
-  numero, emissao: new Date(), cliente: "", telefone: "", so: "", marca: "", modelo: "",
-  imei: "", senha: "", servico: "", descricao: "", garantiaCustom: "", valor: "", checklist: [], checklistOutro: "", acessorios: [], observacoes: "",
+  status: "Recebido",
+  trackingUrl: "",
+  fotos: [],
+  assinatura: null,
+  numero,
+  emissao: new Date(),
+  cliente: "",
+  telefone: "",
+  so: "",
+  marca: "",
+  modelo: "",
+  imei: "",
+  senha: "",
+  servico: "",
+  descricao: "",
+  garantiaCustom: "",
+  valor: "",
+  checklist: [],
+  checklistOutro: "",
+  acessorios: [],
+  observacoes: "",
 });
 
 function Card({ title, children }) {
@@ -34,7 +62,10 @@ function Card({ title, children }) {
 function Field({ label, req, children }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-sm font-medium">{label}{req && <span className="text-destructive"> *</span>}</Label>
+      <Label className="text-sm font-medium">
+        {label}
+        {req && <span className="text-destructive"> *</span>}
+      </Label>
       {children}
     </div>
   );
@@ -45,8 +76,14 @@ function Chips({ options, value, onChange }) {
       {options.map((o) => {
         const on = value.includes(o);
         return (
-          <label key={o} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${on ? "border-primary bg-accent text-accent-foreground" : "border-border"}`}>
-            <Checkbox checked={on} onCheckedChange={(c) => onChange(c ? [...value, o] : value.filter((x) => x !== o))} />
+          <label
+            key={o}
+            className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${on ? "border-primary bg-accent text-accent-foreground" : "border-border"}`}
+          >
+            <Checkbox
+              checked={on}
+              onCheckedChange={(c) => onChange(c ? [...value, o] : value.filter((x) => x !== o))}
+            />
             {o}
           </label>
         );
@@ -55,43 +92,99 @@ function Chips({ options, value, onChange }) {
   );
 }
 const selectCls = "h-11 w-full rounded-md border border-input bg-background px-3 text-base";
+const FIXED_PHOTO_LABELS = new Set(["Frente", "Traseira", "Adicional"]);
 
 export function OrderEditor({ numero }) {
   const { settings, orders, saveOrder } = useWorkshop();
   const navigate = useNavigate();
-  const existing = orders.find(o => o.numero === numero);
+  const existing = orders.find((o) => o.numero === numero);
   const [editing, setEditing] = useState(Boolean(existing));
   const [savedSignature, setSavedSignature] = useState(existing?.assinatura || null);
-  const [os, setOs] = useState(() => existing ? { ...existing, emissao: new Date(existing.emissao) } : vazio(numeroUnico(orders.map(o => o.numero))));
+  const [os, setOs] = useState(() =>
+    existing
+      ? { ...existing, emissao: new Date(existing.emissao) }
+      : vazio(numeroUnico(orders.map((o) => o.numero))),
+  );
   const [logo, setLogo] = useState(settings.empresa.logo || null);
   const [pdf, setPdf] = useState(null);
   const [busy, setBusy] = useState(false);
   const sig = useRef(null);
+  const additionalCameraInput = useRef(null);
+  const additionalGalleryInput = useRef(null);
   const set = (k, v) => setOs((p) => ({ ...p, [k]: v }));
   const [outraMarca, setOutraMarca] = useState(false);
+  const addAdditionalPhoto = async (e) => {
+    const file = e.currentTarget.files?.[0];
+    e.currentTarget.value = "";
+    if (!file) return;
+
+    const photos = os.fotos || [];
+    if (photos.length >= MAX_ORDER_PHOTOS) {
+      toast.error(`O limite é de ${MAX_ORDER_PHOTOS} fotos por O.S.`);
+      return;
+    }
+
+    const usedLabels = new Set(photos.map((photo) => photo.label));
+    let index = 1;
+    while (usedLabels.has(`Extra ${index}`)) index += 1;
+
+    try {
+      const data = await imageFromFile(file);
+      setOs((p) => ({
+        ...p,
+        fotos: [...(p.fotos || []), { label: `Extra ${index}`, data }],
+      }));
+    } catch {
+      toast.error("Não foi possível abrir a foto.");
+    }
+  };
   const trocarSO = (s) => {
     setOs((p) => ({ ...p, so: s, marca: s === "iPhone (iOS)" ? MARCA_IOS : "", modelo: "" }));
     setOutraMarca(false);
   };
 
-  useEffect(() => () => { if (pdf) URL.revokeObjectURL(pdf.url); }, [pdf]);
+  useEffect(
+    () => () => {
+      if (pdf) URL.revokeObjectURL(pdf.url);
+    },
+    [pdf],
+  );
   const persist = async () => {
     const err = validar(os);
-    if (err) { toast.error(err); return null; }
+    if (err) {
+      toast.error(err);
+      return null;
+    }
     const assinatura = sig.current?.toDataURL() ?? savedSignature;
-    const saved = await saveOrder({ ...os, assinatura, empresa: os.empresa || { ...settings.empresa } }, editing);
-    setOs(saved); setEditing(true); setSavedSignature(assinatura);
+    const saved = await saveOrder(
+      { ...os, assinatura, empresa: os.empresa || { ...settings.empresa } },
+      editing,
+    );
+    setOs(saved);
+    setEditing(true);
+    setSavedSignature(assinatura);
     return saved;
   };
   const salvar = async () => {
     setBusy(true);
-    try { const saved = await persist(); if (saved) { toast.success("Ordem salva."); navigate({ to: "/historico" }); } }
-    catch { toast.error("Não foi possível salvar esta ordem."); }
-    finally { setBusy(false); }
+    try {
+      const saved = await persist();
+      if (saved) {
+        toast.success("Ordem salva.");
+        navigate({ to: "/historico" });
+      }
+    } catch {
+      toast.error("Não foi possível salvar esta ordem.");
+    } finally {
+      setBusy(false);
+    }
   };
   const gerar = async () => {
     const err = validar(os);
-    if (err) { toast.error(err); return; }
+    if (err) {
+      toast.error(err);
+      return;
+    }
     setBusy(true);
     try {
       const { gerarPDF } = await import("@/lib/pdf");
@@ -111,20 +204,32 @@ export function OrderEditor({ numero }) {
   const baixar = () => {
     if (!pdf) return;
     const a = document.createElement("a");
-    a.href = pdf.url; a.download = fileName; a.click();
+    a.href = pdf.url;
+    a.download = fileName;
+    a.click();
   };
   const compartilhar = async () => {
     if (!pdf) return;
     const file = new File([pdf.blob], fileName, { type: "application/pdf" });
     if (navigator.canShare?.({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: `Ordem de Serviço ${os.numero}` }); } catch { /* cancelado */ }
+      try {
+        await navigator.share({ files: [file], title: `Ordem de Serviço ${os.numero}` });
+      } catch {
+        /* cancelado */
+      }
     } else {
       toast.info("Compartilhamento não suportado neste navegador. Baixe o PDF.");
     }
   };
   const nova = () => {
     if (pdf) URL.revokeObjectURL(pdf.url);
-    setPdf(null); setOs(vazio(numeroUnico(orders.map(o => o.numero)))); setEditing(false); setSavedSignature(null); sig.current?.clear(); setOutraMarca(false); window.scrollTo({ top: 0 });
+    setPdf(null);
+    setOs(vazio(numeroUnico(orders.map((o) => o.numero))));
+    setEditing(false);
+    setSavedSignature(null);
+    sig.current?.clear();
+    setOutraMarca(false);
+    window.scrollTo({ top: 0 });
   };
 
   const dias = os.garantiaSnapshot ?? garantiaDias(os.servico, Number(os.garantiaCustom));
@@ -133,19 +238,42 @@ export function OrderEditor({ numero }) {
   if (pdf) {
     return (
       <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-4 p-4 pb-8">
-        
         <header className="pt-2">
           <p className="text-xs font-semibold uppercase tracking-normal text-primary">PDF gerado</p>
           <h1 className="text-2xl font-extrabold">{os.numero}</h1>
         </header>
-        <iframe src={pdf.url} title="Prévia do PDF" className="h-[60vh] w-full rounded-2xl border bg-card shadow-card" />
+        <iframe
+          src={pdf.url}
+          title="Prévia do PDF"
+          className="h-[60vh] w-full rounded-2xl border bg-card shadow-card"
+        />
         <div className="grid gap-3">
-          <Button size="lg" className="h-12 text-base font-bold" onClick={compartilhar}>COMPARTILHAR PDF</Button>
-          <Button size="lg" variant="outline" className="h-12 text-base font-bold" onClick={baixar}>BAIXAR PDF</Button>
-          <Button variant="secondary" onClick={() => window.open(`https://wa.me/55${os.telefone.replace(/\D/g, "")}?text=${encodeURIComponent(mensagemWhatsApp(os.numero))}`, "_blank", "noopener,noreferrer")}><Send className="size-4" />Enviar para cliente</Button>
+          <Button size="lg" className="h-12 text-base font-bold" onClick={compartilhar}>
+            COMPARTILHAR PDF
+          </Button>
+          <Button size="lg" variant="outline" className="h-12 text-base font-bold" onClick={baixar}>
+            BAIXAR PDF
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              window.open(
+                `https://wa.me/55${os.telefone.replace(/\D/g, "")}?text=${encodeURIComponent(mensagemWhatsApp(os.numero))}`,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            <Send className="size-4" />
+            Enviar para cliente
+          </Button>
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="ghost" onClick={() => setPdf(null)}>Editar ordem</Button>
-            <Button variant="secondary" onClick={nova}>Nova ordem</Button>
+            <Button variant="ghost" onClick={() => setPdf(null)}>
+              Editar ordem
+            </Button>
+            <Button variant="secondary" onClick={nova}>
+              Nova ordem
+            </Button>
           </div>
         </div>
       </main>
@@ -154,20 +282,61 @@ export function OrderEditor({ numero }) {
 
   return (
     <main className="mx-auto max-w-xl space-y-4 p-4 pb-28">
-      
-      <header className="pt-2"><Button variant="ghost" size="sm" onClick={() => navigate({ to: "/historico" })}><ArrowLeft className="size-4" />Voltar</Button><p className="mt-4 text-xs font-semibold uppercase text-primary">{editing ? "Editar ordem" : "Nova ordem"}</p><h1 className="text-xl font-extrabold">{os.numero}</h1></header>
-      <Field label="Status"><select aria-label="Status da ordem" className={selectCls} value={os.status} onChange={e => set("status", e.target.value)}>{STATUS.map(s => <option key={s}>{s}</option>)}</select></Field>
+      <header className="pt-2">
+        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/historico" })}>
+          <ArrowLeft className="size-4" />
+          Voltar
+        </Button>
+        <p className="mt-4 text-xs font-semibold uppercase text-primary">
+          {editing ? "Editar ordem" : "Nova ordem"}
+        </p>
+        <h1 className="text-xl font-extrabold">{os.numero}</h1>
+      </header>
+      <Field label="Status">
+        <select
+          aria-label="Status da ordem"
+          className={selectCls}
+          value={os.status}
+          onChange={(e) => set("status", e.target.value)}
+        >
+          {STATUS.map((s) => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+      </Field>
 
       <Card title="Cliente">
-        <Field label="Nome do cliente" req><Input className="h-11" value={os.cliente} onChange={(e) => set("cliente", e.target.value)} /></Field>
-        <Field label="Telefone" req><Input className="h-11" inputMode="tel" placeholder="(11) 98765-4321" value={os.telefone} onChange={(e) => set("telefone", formatPhone(e.target.value))} /></Field>
+        <Field label="Nome do cliente" req>
+          <Input
+            className="h-11"
+            value={os.cliente}
+            onChange={(e) => set("cliente", e.target.value)}
+          />
+        </Field>
+        <Field label="Telefone" req>
+          <Input
+            className="h-11"
+            inputMode="tel"
+            placeholder="(11) 98765-4321"
+            value={os.telefone}
+            onChange={(e) => set("telefone", formatPhone(e.target.value))}
+          />
+        </Field>
       </Card>
 
       <Card title="Equipamento">
         <Field label="Sistema operacional" req>
           <div className="grid grid-cols-2 gap-2">
-            {(["Android", "iPhone (iOS)"]).map((s) => (
-              <Button key={s} type="button" variant={os.so === s ? "default" : "outline"} className="h-11" onClick={() => trocarSO(s)}>{s}</Button>
+            {["Android", "iPhone (iOS)"].map((s) => (
+              <Button
+                key={s}
+                type="button"
+                variant={os.so === s ? "default" : "outline"}
+                className="h-11"
+                onClick={() => trocarSO(s)}
+              >
+                {s}
+              </Button>
             ))}
           </div>
         </Field>
@@ -176,77 +345,352 @@ export function OrderEditor({ numero }) {
             <Field label="Marca" req>
               <div className="grid grid-cols-3 gap-2">
                 {MARCAS_ANDROID.map((m) => (
-                  <Button key={m} type="button" variant={os.marca === m && !outraMarca ? "default" : "outline"} className="h-10 px-1 text-sm" onClick={() => { setOutraMarca(false); set("marca", m); }}>{m}</Button>
+                  <Button
+                    key={m}
+                    type="button"
+                    variant={os.marca === m && !outraMarca ? "default" : "outline"}
+                    className="h-10 px-1 text-sm"
+                    onClick={() => {
+                      setOutraMarca(false);
+                      set("marca", m);
+                    }}
+                  >
+                    {m}
+                  </Button>
                 ))}
-                <Button type="button" variant={outraMarca ? "default" : "outline"} className="h-10 px-1 text-sm" onClick={() => { setOutraMarca(true); set("marca", ""); }}>Outra</Button>
+                <Button
+                  type="button"
+                  variant={outraMarca ? "default" : "outline"}
+                  className="h-10 px-1 text-sm"
+                  onClick={() => {
+                    setOutraMarca(true);
+                    set("marca", "");
+                  }}
+                >
+                  Outra
+                </Button>
               </div>
             </Field>
-            {outraMarca && <Field label="Qual marca?"><Input className="h-11" value={os.marca} onChange={(e) => set("marca", e.target.value)} /></Field>}
-            <Field label="Modelo" req><Input className="h-11" placeholder="Ex.: Moto G 5G" value={os.modelo} onChange={(e) => set("modelo", e.target.value)} /></Field>
+            {outraMarca && (
+              <Field label="Qual marca?">
+                <Input
+                  className="h-11"
+                  value={os.marca}
+                  onChange={(e) => set("marca", e.target.value)}
+                />
+              </Field>
+            )}
+            <Field label="Modelo" req>
+              <Input
+                className="h-11"
+                placeholder="Ex.: Moto G 5G"
+                value={os.modelo}
+                onChange={(e) => set("modelo", e.target.value)}
+              />
+            </Field>
           </>
         )}
         {os.so === "iPhone (iOS)" && (
           <>
-            <Field label="Marca" req><Input className="h-11 bg-muted" readOnly value={MARCA_IOS} /></Field>
+            <Field label="Marca" req>
+              <Input className="h-11 bg-muted" readOnly value={MARCA_IOS} />
+            </Field>
             <Field label="Modelo" req>
-              <select className={selectCls} value={os.modelo} onChange={(e) => set("modelo", e.target.value)}>
+              <select
+                className={selectCls}
+                value={os.modelo}
+                onChange={(e) => set("modelo", e.target.value)}
+              >
                 <option value="">Selecione…</option>
-                {MODELOS_IPHONE.map((m) => <option key={m}>{m}</option>)}
+                {MODELOS_IPHONE.map((m) => (
+                  <option key={m}>{m}</option>
+                ))}
               </select>
             </Field>
           </>
         )}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="IMEI"><Input className="h-11" inputMode="numeric" value={os.imei} onChange={(e) => set("imei", e.target.value.replace(/\D/g, "").slice(0, 15))} /></Field>
-          <Field label="Senha"><Input className="h-11" value={os.senha} onChange={(e) => set("senha", e.target.value)} /></Field>
+          <Field label="IMEI">
+            <Input
+              className="h-11"
+              inputMode="numeric"
+              value={os.imei}
+              onChange={(e) => set("imei", e.target.value.replace(/\D/g, "").slice(0, 15))}
+            />
+          </Field>
+          <Field label="Senha">
+            <Input
+              className="h-11"
+              value={os.senha}
+              onChange={(e) => set("senha", e.target.value)}
+            />
+          </Field>
         </div>
       </Card>
 
       <Card title="Serviço">
         <Field label="Serviço executado" req>
-          <select className={selectCls} value={os.serviceId || (os.servico === "Outros" ? "outros" : "")} onChange={(e) => { const service = settings.services.find(s => s.id === e.target.value); setOs(p => ({ ...p, serviceId: e.target.value, servico: service?.nome || "Outros", garantiaSnapshot: service?.dias, serviceObservation: service?.observacao || "" })); }}>
+          <select
+            className={selectCls}
+            value={os.serviceId || (os.servico === "Outros" ? "outros" : "")}
+            onChange={(e) => {
+              const service = settings.services.find((s) => s.id === e.target.value);
+              setOs((p) => ({
+                ...p,
+                serviceId: e.target.value,
+                servico: service?.nome || "Outros",
+                garantiaSnapshot: service?.dias,
+                serviceObservation: service?.observacao || "",
+              }));
+            }}
+          >
             <option value="">Selecione…</option>
-            {settings.services.map(s => <option key={s.id} value={s.id}>{s.nome}</option>)}
-            {os.serviceId && os.serviceId !== "outros" && !settings.services.some(s => s.id === os.serviceId) && <option value={os.serviceId}>{os.servico}</option>}
+            {settings.services.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.nome}
+              </option>
+            ))}
+            {os.serviceId &&
+              os.serviceId !== "outros" &&
+              !settings.services.some((s) => s.id === os.serviceId) && (
+                <option value={os.serviceId}>{os.servico}</option>
+              )}
             <option value="outros">Outros</option>
           </select>
         </Field>
         {os.servico === "Outros" && (
           <>
-            <Field label="Descrição do serviço" req><Input className="h-11" value={os.descricao} onChange={(e) => set("descricao", e.target.value)} /></Field>
-            <Field label="Garantia (dias)" req><Input className="h-11" inputMode="numeric" value={os.garantiaCustom} onChange={(e) => setOs(p => ({ ...p, garantiaCustom: e.target.value.replace(/\D/g, "").slice(0, 4), garantiaSnapshot: undefined }))} /></Field>
+            <Field label="Descrição do serviço" req>
+              <Input
+                className="h-11"
+                value={os.descricao}
+                onChange={(e) => set("descricao", e.target.value)}
+              />
+            </Field>
+            <Field label="Garantia (dias)" req>
+              <Input
+                className="h-11"
+                inputMode="numeric"
+                value={os.garantiaCustom}
+                onChange={(e) =>
+                  setOs((p) => ({
+                    ...p,
+                    garantiaCustom: e.target.value.replace(/\D/g, "").slice(0, 4),
+                    garantiaSnapshot: undefined,
+                  }))
+                }
+              />
+            </Field>
           </>
         )}
-        {dias !== null && <p className="rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground">Garantia: {dias} dias</p>}
-        <Field label="Valor" req><Input className="h-11 text-lg font-bold" inputMode="numeric" placeholder="R$ 0,00" value={os.valor} onChange={(e) => set("valor", formatBRLFromDigits(e.target.value))} /></Field>
+        {dias !== null && (
+          <p className="rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground">
+            Garantia: {dias} dias
+          </p>
+        )}
+        <Field label="Valor" req>
+          <Input
+            className="h-11 text-lg font-bold"
+            inputMode="numeric"
+            placeholder="R$ 0,00"
+            value={os.valor}
+            onChange={(e) => set("valor", formatBRLFromDigits(e.target.value))}
+          />
+        </Field>
       </Card>
 
       <Card title="Checklist de entrada">
-        <Chips options={[...new Set([...settings.checklist.map(c => c.nome), ...os.checklist])]} value={os.checklist} onChange={(v) => set("checklist", v)} />
+        <Chips
+          options={[...new Set([...settings.checklist.map((c) => c.nome), ...os.checklist])]}
+          value={os.checklist}
+          onChange={(v) => set("checklist", v)}
+        />
         {os.checklist.includes("Outro") && (
           <Field label="Descreva o item “Outro”">
-            <Textarea rows={2} maxLength={200} placeholder="Ex.: Moldura trincada na lateral" value={os.checklistOutro} onChange={(e) => set("checklistOutro", e.target.value)} />
+            <Textarea
+              rows={2}
+              maxLength={200}
+              placeholder="Ex.: Moldura trincada na lateral"
+              value={os.checklistOutro}
+              onChange={(e) => set("checklistOutro", e.target.value)}
+            />
           </Field>
         )}
       </Card>
-      <Card title="Acessórios recebidos"><Chips options={ACESSORIOS} value={os.acessorios} onChange={(v) => set("acessorios", v)} /></Card>
+      <Card title="Acessórios recebidos">
+        <Chips options={ACESSORIOS} value={os.acessorios} onChange={(v) => set("acessorios", v)} />
+      </Card>
 
       <Card title="Observações">
-        <Textarea rows={3} maxLength={500} value={os.observacoes} onChange={(e) => set("observacoes", e.target.value)} />
+        <Textarea
+          rows={3}
+          maxLength={500}
+          value={os.observacoes}
+          onChange={(e) => set("observacoes", e.target.value)}
+        />
         <p className="text-right text-xs text-muted-foreground">{os.observacoes.length}/500</p>
       </Card>
 
-      <Card title="Fotos do aparelho (opcional)"><div className="grid grid-cols-3 gap-3">{["Frente", "Traseira", "Adicional"].map(label => { const photo = os.fotos?.find(f => f.label === label); return <div key={label}><label className="flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted text-muted-foreground">{photo ? <img src={photo.data} alt={label} className="size-full object-cover" /> : <Camera className="size-6" />}<input type="file" aria-label={`Foto ${label}`} accept="image/*" capture="environment" className="hidden" onChange={async e => { const file = e.target.files?.[0]; if (!file) return; try { const data = await imageFromFile(file); setOs(p => ({ ...p, fotos: [...(p.fotos || []).filter(f => f.label !== label), { label, data }] })); } catch { toast.error("Não foi possível abrir a foto."); } }} /></label><div className="mt-1 flex items-center justify-between"><span className="text-xs">{label}</span>{photo && <Button variant="ghost" size="icon" aria-label={`Remover foto ${label}`} onClick={() => set("fotos", os.fotos.filter(f => f.label !== label))}><Trash2 className="size-3" /></Button>}</div></div>; })}</div></Card>
+      <Card title="Fotos do aparelho (opcional)">
+        <div className="grid grid-cols-3 gap-3">
+          {["Frente", "Traseira", "Adicional"].map((label) => {
+            const photo = os.fotos?.find((f) => f.label === label);
+            return (
+              <div key={label}>
+                <label className="flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed bg-muted text-muted-foreground">
+                  {photo ? (
+                    <img src={photo.data} alt={label} className="size-full object-cover" />
+                  ) : (
+                    <Camera className="size-6" />
+                  )}
+                  <input
+                    type="file"
+                    aria-label={`Foto ${label}`}
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!file) return;
+                      const replacingPhoto = (os.fotos || []).some((item) => item.label === label);
+                      if (!replacingPhoto && (os.fotos || []).length >= MAX_ORDER_PHOTOS) {
+                        toast.error(`O limite é de ${MAX_ORDER_PHOTOS} fotos por O.S.`);
+                        return;
+                      }
+                      try {
+                        const data = await imageFromFile(file);
+                        setOs((p) => ({
+                          ...p,
+                          fotos: [
+                            ...(p.fotos || []).filter((f) => f.label !== label),
+                            { label, data },
+                          ],
+                        }));
+                      } catch {
+                        toast.error("Não foi possível abrir a foto.");
+                      }
+                    }}
+                  />
+                </label>
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="text-xs">{label}</span>
+                  {photo && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Remover foto ${label}`}
+                      onClick={() =>
+                        set(
+                          "fotos",
+                          os.fotos.filter((f) => f.label !== label),
+                        )
+                      }
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {(os.fotos || [])
+            .filter((photo) => !FIXED_PHOTO_LABELS.has(photo.label))
+            .map((photo) => (
+              <div key={photo.label}>
+                <div className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                  <img src={photo.data} alt={photo.label} className="size-full object-cover" />
+                </div>
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="text-xs">{photo.label}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Remover foto ${photo.label}`}
+                    onClick={() =>
+                      set(
+                        "fotos",
+                        (os.fotos || []).filter((item) => item.label !== photo.label),
+                      )
+                    }
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={additionalCameraInput}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              aria-label="Tirar foto adicional"
+              onChange={addAdditionalPhoto}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={(os.fotos || []).length >= MAX_ORDER_PHOTOS}
+              onClick={() => additionalCameraInput.current?.click()}
+            >
+              <Camera className="size-4" />
+              Tirar foto
+            </Button>
+            <input
+              ref={additionalGalleryInput}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              aria-label="Escolher foto da galeria"
+              onChange={addAdditionalPhoto}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={(os.fotos || []).length >= MAX_ORDER_PHOTOS}
+              onClick={() => additionalGalleryInput.current?.click()}
+            >
+              <ImagePlus className="size-4" />
+              Escolher da galeria
+            </Button>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {(os.fotos || []).length}/{MAX_ORDER_PHOTOS} fotos
+          </span>
+        </div>
+      </Card>
 
       <Card title="Assinatura do cliente (opcional)">
         <SignaturePad ref={sig} initialValue={savedSignature} />
-        <Button variant="outline" size="sm" onClick={() => { sig.current?.clear(); setSavedSignature(null); }}>Limpar assinatura</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            sig.current?.clear();
+            setSavedSignature(null);
+          }}
+        >
+          Limpar assinatura
+        </Button>
       </Card>
 
       <div className="fixed inset-x-0 bottom-0 border-t bg-background/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
         <div className="mx-auto flex max-w-xl gap-3">
-          <Button variant="outline" className="h-13" disabled={busy} onClick={salvar}><Save className="size-4" />Salvar</Button>
-          <Button size="lg" className="h-13 w-full text-base font-bold" disabled={busy} onClick={gerar}>
+          <Button variant="outline" className="h-13" disabled={busy} onClick={salvar}>
+            <Save className="size-4" />
+            Salvar
+          </Button>
+          <Button
+            size="lg"
+            className="h-13 w-full text-base font-bold"
+            disabled={busy}
+            onClick={gerar}
+          >
             {busy ? "Gerando…" : "Gerar PDF"}
           </Button>
         </div>

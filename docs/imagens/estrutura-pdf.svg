@@ -1,0 +1,95 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="900"
+  height="1120"
+  viewBox="0 0 900 1120"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Estrutura esquemática do PDF da Ordem de Serviço</title>
+  <desc id="desc">
+    Página A4 com identificação da assistência, dados do cliente, aparelho, serviço, checklist,
+    fotos, garantia, QR code e assinaturas.
+  </desc>
+  <defs>
+    <style>
+      .bg {
+        fill: #edf3f2;
+      }
+      .paper {
+        fill: #fff;
+        stroke: #d2e1de;
+        stroke-width: 2;
+      }
+      .bar {
+        fill: #e9f3f0;
+      }
+      .h {
+        font:
+          700 18px Manrope,
+          Arial,
+          sans-serif;
+        fill: #0f6b5c;
+      }
+      .t {
+        font:
+          15px Manrope,
+          Arial,
+          sans-serif;
+        fill: #243633;
+      }
+      .s {
+        font:
+          13px Manrope,
+          Arial,
+          sans-serif;
+        fill: #71817e;
+      }
+      .line {
+        stroke: #0f6b5c;
+        stroke-width: 3;
+      }
+    </style>
+  </defs>
+  <rect class="bg" width="900" height="1120" rx="18" />
+  <rect class="paper" x="180" y="28" width="540" height="1060" rx="8" />
+  <text class="h" x="218" y="72">LOGO / ASSISTÊNCIA</text>
+  <text class="h" x="485" y="72">ORDEM DE SERVIÇO</text>
+  <text class="t" x="485" y="102">OS-AAAAMMDD-XXXX · Data</text>
+  <line class="line" x1="218" y1="126" x2="682" y2="126" />
+  <rect class="bar" x="218" y="148" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="172">DADOS DA ASSISTÊNCIA</text>
+  <text class="s" x="230" y="205">Nome fantasia · telefone · email · endereço</text>
+  <rect class="bar" x="218" y="224" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="248">CLIENTE E EQUIPAMENTO</text>
+  <text class="s" x="230" y="281">Cliente · telefone · sistema · marca · modelo · IMEI</text>
+  <rect class="bar" x="218" y="300" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="324">SERVIÇO · GARANTIA · VALOR · STATUS</text>
+  <text class="s" x="230" y="357">Serviço personalizado e prazo registrado na O.S.</text>
+  <rect class="bar" x="218" y="376" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="400">CHECKLIST E ACESSÓRIOS</text>
+  <text class="s" x="230" y="433">Itens marcados no recebimento do aparelho</text>
+  <rect class="bar" x="218" y="452" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="476">FOTOS E OBSERVAÇÕES</text>
+  <rect x="230" y="500" width="125" height="100" rx="6" fill="#f4f8f7" stroke="#d2e1de" />
+  <rect x="367" y="500" width="125" height="100" rx="6" fill="#f4f8f7" stroke="#d2e1de" />
+  <rect x="504" y="500" width="125" height="100" rx="6" fill="#f4f8f7" stroke="#d2e1de" />
+  <text class="s" x="258" y="555">Frente</text>
+  <text class="s" x="394" y="555">Traseira</text>
+  <text class="s" x="531" y="555">Adicional</text>
+  <rect class="bar" x="218" y="620" width="464" height="34" rx="4" />
+  <text class="h" x="230" y="644">TERMO DE GARANTIA</text>
+  <text class="s" x="230" y="676">Texto do termo configurado no domínio</text>
+  <text class="s" x="230" y="700">e aplicado ao serviço da ordem.</text>
+  <rect x="615" y="728" width="55" height="55" fill="#fff" stroke="#0f6b5c" stroke-width="2" />
+  <path
+    d="M625 738h12v12h-12zM647 738h12v12h-12zM625 760h12v12h-12zM647 760h4v4h-4zM657 760h4v12h-4z"
+    fill="#0f6b5c"
+  />
+  <text class="s" x="603" y="801">QR da O.S.</text>
+  <line x1="230" y1="825" x2="430" y2="825" stroke="#71817e" />
+  <line x1="465" y1="825" x2="665" y2="825" stroke="#71817e" />
+  <text class="s" x="260" y="850">Assinatura do cliente</text>
+  <text class="s" x="485" y="850">Assinatura da assistência</text>
+  <text class="s" x="340" y="1030">Rodapé com identificação da empresa</text>
+</svg>

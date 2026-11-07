@@ -1,0 +1,81 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1200"
+  height="430"
+  viewBox="0 0 1200 430"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Arquitetura e fluxo de dados da aplicação</title>
+  <desc id="desc">
+    Fluxo do usuário pela interface React até IndexedDB, PDF e entrega ao cliente.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0 0L10 4L0 8Z" fill="#087f6b" />
+    </marker>
+    <style>
+      .bg {
+        fill: #f4f8f7;
+      }
+      .card {
+        fill: #fff;
+        stroke: #d2e1de;
+        stroke-width: 2;
+      }
+      .main {
+        font:
+          700 20px Manrope,
+          Arial,
+          sans-serif;
+        fill: #153c36;
+      }
+      .sub {
+        font:
+          15px Manrope,
+          Arial,
+          sans-serif;
+        fill: #536b67;
+      }
+      .small {
+        font:
+          700 14px Manrope,
+          Arial,
+          sans-serif;
+        fill: #087f6b;
+      }
+      .line {
+        stroke: #087f6b;
+        stroke-width: 3;
+        marker-end: url(#arrow);
+      }
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="430" rx="18" />
+  <text x="40" y="48" class="small">MAPA DO PROJETO · FLUXO DE UMA O.S.</text>
+  <rect class="card" x="35" y="100" width="190" height="110" rx="12" />
+  <text class="main" x="60" y="145">Usuário</text>
+  <text class="sub" x="60" y="178">preenche e confirma</text>
+  <path class="line" d="M230 155H275" />
+  <rect class="card" x="285" y="100" width="220" height="110" rx="12" />
+  <text class="main" x="310" y="145">React + JSX</text>
+  <text class="sub" x="310" y="178">rotas, componentes, estado</text>
+  <path class="line" d="M510 155H555" />
+  <rect class="card" x="565" y="100" width="210" height="110" rx="12" />
+  <text class="main" x="590" y="145">WorkshopContext</text>
+  <text class="sub" x="590" y="178">compartilha ordens e ajustes</text>
+  <path class="line" d="M780 155H825" />
+  <rect class="card" x="835" y="100" width="300" height="110" rx="12" />
+  <text class="main" x="860" y="145">Repositories + IndexedDB</text>
+  <text class="sub" x="860" y="178">salva settings e orders localmente</text>
+  <path class="line" d="M985 215V270H780" />
+  <rect class="card" x="565" y="285" width="210" height="100" rx="12" />
+  <text class="main" x="590" y="327">jsPDF + QR</text>
+  <text class="sub" x="590" y="356">logo, fotos, termo, assinatura</text>
+  <path class="line" d="M560 335H500" />
+  <rect class="card" x="285" y="285" width="205" height="100" rx="12" />
+  <text class="main" x="310" y="327">Entrega ao cliente</text>
+  <text class="sub" x="310" y="356">baixar, compartilhar, WhatsApp</text>
+  <text class="sub" x="835" y="320">Vite monta o app.</text>
+  <text class="sub" x="835" y="348">PWA controla instalação e cache.</text>
+</svg>
